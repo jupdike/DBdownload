@@ -99,9 +99,9 @@ class DBDownload(object):
         self._cursor = None
         self._save_state()
 
-    def start(self):
+    def start(self, batch=False):
         try:
-            self._monitor()
+            self._monitor(batch)
         except KeyboardInterrupt:
             pass
 
@@ -123,7 +123,7 @@ class DBDownload(object):
         local = os.path.join(self.local_dir, *x)
         return local
 
-    def _monitor(self):
+    def _monitor(self, batch=False):
         self._mkdir(self.local_dir)  # Make sure root directory exists.
 
         tree = {}
@@ -163,6 +163,10 @@ class DBDownload(object):
 
                 if changed and self.executable:
                     self._launch(self.executable)
+                
+                if batch:
+                    print 'Batch mode. Done.'
+                    break
 
                 # Done processing delta, sleep and check again.
                 tree = {}
@@ -452,7 +456,7 @@ def main():
     options = {'log': '-', 'config': '~/dbdownload.conf',
                'cache': '~/.dbdownload.cache', 'interval': 300, 'source': None,
                'target': None, 'verbose': False, 'reset': False, 'exec': None,
-               'authorizeonly': False}
+               'authorizeonly': False, 'batch': False}
 
     # First parse any command line arguments.
     parser = OptionParser(description='Do one-way Dropbox synchronization')
@@ -471,6 +475,9 @@ def main():
                       help='only authorize application and exit')
     parser.add_option('--exec', '-x',
                       help='execute program when directory has changed')
+    parser.add_option('--batch', '-b', action='store_true',
+                      help='run in batch mode, not monitor mode (update files then quit)')
+    
     (opts, args) = parser.parse_args()
     if args:
         print 'Leftover command line arguments', args
@@ -501,7 +508,7 @@ def main():
     if options['reset']:
         dl.reset()
     if not opts.authorizeonly:
-        dl.start()
+        dl.start(options['batch'])
     else:
         dl.reset()
 
