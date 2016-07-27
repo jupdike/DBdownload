@@ -101,7 +101,7 @@ class DBDownload(object):
 
     def start(self, batch=False):
         try:
-            self._monitor(batch)
+            return self._monitor(batch)
         except KeyboardInterrupt:
             pass
 
@@ -166,7 +166,7 @@ class DBDownload(object):
                 
                 if batch:
                     print 'Batch mode. Done.'
-                    break
+                    return changed
 
                 # Done processing delta, sleep and check again.
                 tree = {}
@@ -508,7 +508,8 @@ def main():
     if options['reset']:
         dl.reset()
     if not opts.authorizeonly:
-        dl.start(options['batch'])
+        changed = dl.start(options['batch'])
+        print 'Changed' if changed else 'No Changes'   # we can tell that something changed or not
     else:
         dl.reset()
 
