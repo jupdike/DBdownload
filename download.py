@@ -275,7 +275,10 @@ def main():
     dbx = dropbox.Dropbox(args.token)
 
     any_change = smart_download(dbx, folder, rootdir)
-    # TODO do whatever with any_change ... like regenerate content or something
+    if any_change:
+        exit(0) # means    python download.py x y z && echo 'Do more stuff'  --> prints out "Do more stuff"
+    else:
+        exit(1) # means    python download.py x y z && echo 'Do more stuff'  --> right-hand side of && is not executed
 
 if __name__ == '__main__':
     main()
