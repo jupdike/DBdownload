@@ -156,7 +156,7 @@ def _get_remote_tree_inner(dbx, folder, subfolder, bag):
                 path = path.replace('//', '/')
             _get_remote_tree_inner(dbx, folder, path, bag)
         if type(md) is dropbox.files.FileMetadata:
-            path = '%s/%s/%s' % (folder, subfolder.replace(os.path.sep, '/'), name)
+            path = '%s/%s' % (subfolder.replace(os.path.sep, '/'), name)
             while '//' in path:
                 path = path.replace('//', '/')
             # track input paths
@@ -164,7 +164,8 @@ def _get_remote_tree_inner(dbx, folder, subfolder, bag):
 
 def get_local_tree(rootdir, folder):
     ret = set()
-    top = path_combine(rootdir, folder)
+    #top = path_combine(rootdir, folder)
+    top = rootdir
     #print('---\ntop:', top)
     for dn, dirs, files in os.walk(top):
         subfolder = dn[len(rootdir):].strip(os.path.sep)
@@ -179,7 +180,10 @@ def get_local_tree(rootdir, folder):
             elif name.startswith('@') or name.endswith('~'):
                 print('Skipping temporary file:', name)
             else:
+                #sub2 = subfolder[len(folder):]
                 fname = path_combine(subfolder, name)
+                if not fname.startswith('/'):
+                    fname = '/' + fname
                 #print('   ', fname)
                 ret.add(fname)
     return ret
@@ -196,13 +200,15 @@ def smart_download(dbx, folder, rootdir):
 
     subfolder = ''
     remote_map = get_remote_tree(dbx, folder, subfolder)
+    #print('remote:', remote_map.keys())
     local_set  = get_local_tree(rootdir, folder)
+    #print('local:', local_set)
     # remove excess files
     for local in local_set:
         if not remote_map.has_key(local):
             fname = path_combine(rootdir, local)
             print('NEED TO DELETE:', fname)
-            os.remove(local)
+            os.remove(fname)
             any_change = True
     # TODO remove empty folders that are no longer part of the paths of any remote files
     # ...
@@ -229,13 +235,15 @@ def smart_download(dbx, folder, rootdir):
             any_change = True
             continue
         #print('file is up-to-date:', fname)
+    #print('needed:', needed)
 
     # actually download anything that is left...
     for name in needed:
         fname = path_combine(rootdir, name)
         md = remote_map[name]
-        bites = download_path(dbx, name)
-        print('Downloaded', len(bites), 'of', name, 'to', fname)
+        remotepath = path_combine(folder, name)
+        bites = download_path(dbx, remotepath)
+        print('Downloaded', len(bites), 'of', remotepath, 'to', fname)
         # write out <bites> to file <path>
         ensure_folder_for_file(fname)
         open(fname, 'wb').write(bites)
