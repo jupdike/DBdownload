@@ -31,7 +31,7 @@ import dropbox
 
 
 # OAuth2 access token.  TODO: login etc.
-TOKEN = open('dropbox-acctok.txt').read().strip()
+TOKEN = None #open('dropbox-acctok.txt').read().strip()
 
 parser = argparse.ArgumentParser(description='Sync ~/Downloads to Dropbox')
 parser.add_argument('folder', nargs='?', default='Downloads',
