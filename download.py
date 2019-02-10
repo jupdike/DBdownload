@@ -33,11 +33,11 @@ import dropbox
 # OAuth2 access token.  TODO: login etc.
 TOKEN = None #open('dropbox-acctok.txt').read().strip()
 
-parser = argparse.ArgumentParser(description='Sync ~/Downloads to Dropbox')
-parser.add_argument('folder', nargs='?', default='Downloads',
+parser = argparse.ArgumentParser(description='Sync a <folder in Dropbox> to a <local folder>')
+parser.add_argument('folder', nargs='?', default='BOGUS-folder_NAME',
                     help='Folder name in your Dropbox')
-parser.add_argument('rootdir', nargs='?', default='~/Downloads',
-                    help='Local directory to upload')
+parser.add_argument('rootdir', nargs='?', default='~/BOGUS-folder-ALSO',
+                    help='Local directory to make the same as <folder>')
 parser.add_argument('--token', default=TOKEN,
                     help='Access token '
                     '(see https://www.dropbox.com/developers/apps)')
